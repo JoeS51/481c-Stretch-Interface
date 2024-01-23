@@ -8,17 +8,33 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
-
+import ROSLIB from "roslib";
+import { RosConnection } from 'rosreact';
+import { useROS } from './ros-helpers';
 
 function App() {
+  let { ros } = useROS();
   const [part, setPart] = React.useState('');
-
+  const [currentStatus, setCurrentStatus] = React.useState(ros.isConnected)
+    
   const handleChange = (event) => {
     setPart(event.target.value);
   };
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentStatus(ros.isConnected)
+    }, 100)
+    return () => clearInterval(interval)
+  }, [ros, setCurrentStatus])
+
+  console.log(RosConnection)
+
   return (
-    <div className="App">
+    <center>
+    <RosConnection url="wss://slinky.hcrlab.cs.washington.edu:9090" autoConnect>
       <h1>CSE 481C Stretch Web Interface</h1>
+      <h4>Current Status: {currentStatus == "" ? "Not Connected" : currentStatus}</h4>
       <header className="App-header">
       <Stack spacing={4}>
         <FormControl variant="standard" fullWidth>
@@ -45,9 +61,12 @@ function App() {
           </ButtonGroup>
           <Button variant="contained">Down</Button>
         </Stack>
+        <Button variant="outlined">Stop</Button>
       </Stack>
+      
       </header>
-    </div>
+    </RosConnection>
+    </center>
   );
 }
 

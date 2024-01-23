@@ -1,0 +1,14 @@
+<launch>
+
+  <!-- ROSBRIDGE -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+    <arg name="port" default="9090"/>
+    <arg name="address" default="localhost" />
+    <arg name="ssl" value="true" />
+    <arg name="certfile" value="$(find stretch_teleop_interface)/certificates/$(arg certfile)" />
+    <arg name="keyfile" value="$(find stretch_teleop_interface)/certificates/$(arg keyfile)" />
+    <arg name="authenticate" default="false" />
+  </include>
+  <!-- -->
+  
+</launch>
