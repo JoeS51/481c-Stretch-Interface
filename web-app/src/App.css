@@ -40,3 +40,11 @@
     transform: rotate(360deg);
   }
 }
+.centeredContent {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.MuiAppBar-root{
+  background-color: #ffffff
+}
