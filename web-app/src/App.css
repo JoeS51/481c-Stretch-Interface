@@ -48,3 +48,7 @@
   right: '50%';
   top: '35%'; 
 }
+
+img {
+  transform: rotate(90deg)
+}
