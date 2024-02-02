@@ -1,6 +1,6 @@
 import './App.css';
 import * as React from 'react';
-import { Button, Box, ButtonGroup, Select, InputLabel, MenuItem, Radio, RadioGroup, FormControlLabel, Grid, Paper, Typography, FormControl, FormLabel } from '@mui/material';
+import { createTheme, ThemeProvider, Button, Box, ButtonGroup, Radio, RadioGroup, FormControlLabel, Paper, Typography, FormControl } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
@@ -137,13 +137,27 @@ function App() {
       console.log("not in the correct part")
     }
   }
+  const buttonTheme = createTheme({
+    palette: {
+      // Define a custom palette color
+      customColor: {
+        main: '#00e6e6', // Custom color
+        contrastText: '#00000', // Text color against the background
+      },
+      StopColor:{
+        main: '#e62e00', // Custom color
+        contrastText: '#00000', // Text color against the background
+      }
+    },
+  });
+  
 
   return (
     <center>
     <RosConnection url="ws://slinky.hcrlab.cs.washington.edu:9090" autoConnect>
       <h1>CSE 481C Stretch Web Interface</h1>
-      <h4>Current Status: {currentStatus}</h4>
-      <AppBar position="static" sx={{ backgroundColor: '#ffffff', boxShadow: 3 }}>
+      <h3>Current Status: {currentStatus}</h3>
+      <AppBar position="static" sx={{ backgroundColor: '#00ff00', boxShadow: 8, alignItems: 'center', paddingBottom: '10px', paddingTop: '10px'}}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example">
           <Tab label="Automated" value="Automated" />
           <Tab label="Manual" value="Manual" />
@@ -151,25 +165,27 @@ function App() {
       </AppBar>
 
       {tabValue === "Automated" && (
-        <Stack spacing={4}>
-          <Button variant="contained" color="primary">Clean</Button>
-          <Button variant="contained" color="secondary">Return Home</Button>
-        </Stack>
+        <ThemeProvider theme = {buttonTheme}>
+          <ButtonGroup >          
+          <ButtonGroup orientation='vertical' >
+          <Button variant="contained" color="customColor" style={{marginTop: '28px', marginBottom: '78px' , width: '250px', height: '75px' }}>Clean the Room</Button>
+          
+          <Button variant="contained" color="secondary" style={{ width: '150px', height: '50px' }} >Return Home</Button>
+          </ButtonGroup>
+          <Button variant='contained' color="StopColor" style={{marginLeft: '84px', marginTop: '28px', width: '350px', height: '200px'}} >Emergency Stop</Button>
+          </ButtonGroup>
+
+        </ThemeProvider>
       )}
 
       {tabValue === "Manual" && (
-        <Paper style={{ padding: 20 }}>
+        <Paper style={{ padding: 20}}>
           <Typography variant="h6">Manual Control</Typography>
           <div 
   style={{
-    position: 'absolute', left: '50%', top: '28%',
-    transform: 'translate(-50%, -50%)',
-    marginTop: 5,
-    margin: 6
-    
-}}>
+    position: 'absolute', left: '50%', top: '28%', transform: 'translate(-50%, -50%)', marginTop: 5, margin: 6 }}>
           <FormControl variant="standard" fullWidth sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
-            <RadioGroup row name="controlMode" value={controlMode} onChange={handleControlChange} >
+            <RadioGroup row name="controlMode" value={controlMode} onChange={handleControlChange} sx={{marginTop: '35px'}}>
               <FormControlLabel value="Movement" control={<Radio />} label="Movement" />
               <FormControlLabel value="Arm" control={<Radio />} label="Arm" />
             </RadioGroup>
@@ -182,22 +198,22 @@ function App() {
        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 32 }}>
        <Stack spacing={2} alignItems="center">
        <Typography variant="subtitle1">Base</Typography>
-         <Button variant="contained" onClick={moveUp}>Forward</Button>
-         <ButtonGroup variant="contained" aria-label="outlined button group">
-           <Button onClick={moveLeft}>Left</Button>
-           <Button onClick={moveRight}>Right</Button>
+         <Button variant="contained" onClick={moveUp} style={{width: '100px', height: '37px'}}>Forward</Button>
+         <ButtonGroup variant="contained" >
+           <Button onClick={moveLeft} style={{marginRight: ' 32px', width: '100px', height: '37px'}}>Left</Button>
+           <Button onClick={moveRight} style={{width: '100px', height: '37px'}}>Right</Button>
          </ButtonGroup>
-         <Button variant="contained" onClick={moveDown}>Backward</Button>
+         <Button variant="contained" onClick={moveDown} style={{width: '100px', height: '37px'}}>Backward</Button>
        </Stack>
         
        <Stack spacing={2} alignItems="center">
        <Typography variant="subtitle1"> Head Camera</Typography>
-         <Button variant="contained" onClick={null}>Tilt Up</Button>
-         <ButtonGroup variant="contained" aria-label="outlined button group">
-           <Button onClick={null}>Left</Button>
-           <Button onClick={null}>Right</Button>
+         <Button variant="contained" onClick={null} style={{width: '100px', height: '37px'}}>Tilt Up</Button>
+         <ButtonGroup variant="contained" aria-label="outlined button group" >
+           <Button onClick={null} style={{marginRight: ' 32px', width: '100px', height: '37px'}}>Left</Button>
+           <Button onClick={null} style={{width: '100px', height: '37px'}}>Right</Button>
          </ButtonGroup>
-         <Button variant="contained" onClick={null}>Tilt Down</Button>
+         <Button variant="contained" onClick={null} style={{width: '115px', height: '37px'}}>Tilt Down</Button>
        </Stack>
      </Box>
       )}
@@ -207,22 +223,22 @@ function App() {
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 32 }}>
         <Stack spacing={2} alignItems="center">
         <Typography variant="subtitle1">Arm</Typography>
-          <Button variant="contained" onClick={moveUp}>Up</Button>
-          <ButtonGroup variant="contained" aria-label="outlined button group">
-            <Button onClick={moveLeft}>Left</Button>
-            <Button onClick={moveRight}>Right</Button>
+          <Button variant="contained" onClick={moveUp} style={{width: '100px', height: '37px'}}>Up</Button>
+          <ButtonGroup variant="contained" aria-label="outlined button group" >
+            <Button onClick={moveLeft} style={{marginRight: ' 32px', width: '100px', height: '37px'}}>Left</Button>
+            <Button onClick={moveRight} style={{width: '100px', height: '37px'}}>Right</Button>
           </ButtonGroup>
-          <Button variant="contained" onClick={moveDown}>Down</Button>
+          <Button variant="contained" onClick={moveDown} style={{width: '100px', height: '37px'}}>Down</Button>
         </Stack>
          
         <Stack spacing={2} alignItems="center">
         <Typography variant="subtitle1">Grabber</Typography>
-          <Button variant="contained" onClick={moveUp}>Out</Button>
+          <Button variant="contained" onClick={moveUp} style={{width: '100px', height: '37px'}}>Out</Button>
           <ButtonGroup variant="contained" aria-label="outlined button group">
-            <Button onClick={moveLeft}>Close</Button>
-            <Button onClick={moveRight}>Open</Button>
+            <Button onClick={moveLeft} style={{marginRight: ' 32px', width: '100px', height: '37px'}}>Close</Button>
+            <Button onClick={moveRight} style={{width: '100px', height: '37px'}}>Open</Button>
           </ButtonGroup>
-          <Button variant="contained" onClick={moveDown}>In</Button>
+          <Button variant="contained" onClick={moveDown} style={{width: '100px', height: '37px'}}>In</Button>
         </Stack>
       </Box>
       )}
