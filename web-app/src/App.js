@@ -330,7 +330,7 @@ function App() {
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 32 }}>
                   <Stack spacing={2} alignItems="center">
                     <Typography variant="subtitle1">Arm</Typography>
-                    <Button variant="contained" onClick={testActionServer("joint_lift", 0.3)} style={{ width: '100px', height: '37px' }}>Up</Button>
+                    <Button variant="contained" onClick={()=>testActionServer("joint_lift", 0.8)} style={{ width: '100px', height: '37px' }}>Up</Button>
                     <ButtonGroup variant="contained" aria-label="outlined button group" >
                       <Button onClick={moveLeft} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Left</Button>
                       <Button onClick={moveRight} style={{ width: '100px', height: '37px' }}>Right</Button>
