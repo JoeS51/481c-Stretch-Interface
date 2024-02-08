@@ -13,6 +13,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.10",
+    "react-repeatable": "^2.0.1",
     "react-ros": "^0.10.0",
     "react-scripts": "5.0.1",
     "roslib": "github:hello-vinitha/roslibjs#ros2actionclient",

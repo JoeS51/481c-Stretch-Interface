@@ -11,18 +11,34 @@ import { useROS } from './ros-helpers';
 import Konva from 'konva';
 import { Stage, Layer, Image } from 'react-konva';
 
+
+// export const JOINT_LIMITS: { [key in ValidJoints]?: [number, number] } = {
+//   "wrist_extension": [0.05, .518],
+//   "joint_wrist_roll": [-2.95, 2.95],
+//   "joint_wrist_pitch": [-1.57, 0.57],
+//   "joint_wrist_yaw": [-1.37, 4.41],
+//   "joint_lift": [0.175, 1.05],
+//   "translate_mobile_base": [-30.0, 30.0],
+//   "rotate_mobile_base": [-3.14, 3.14],
+//   "joint_gripper_finger_left": [-0.37, 0.17],
+//   "joint_head_tilt": [-1.6, 0.3],
+//   "joint_head_pan": [-3.95, 1.7]
+// }
+
 function App() {
   let { ros } = useROS();
-  const [part, setPart] = React.useState('');
+  const [part, setPart] = React.useState('Movement');
   const [currentStatus, setCurrentStatus] = React.useState("Not Connected")
   const [tabValue, setTabValue] = React.useState("Automated")
   const [controlMode, setControlMode] = React.useState('Movement');
   const [cameraSubscribed, setCameraSubscribed] = React.useState("");
+  const [markers, setMarkers] = React.useState("");
   const [rosConnected, setRosConnected] = React.useState();
   const [isVisible, setIsVisible] = React.useState(false);
 
   const handleControlChange = (event) => {
     setControlMode(event.target.value);
+    setPart(event.target.value)
   };
   const handleChange = (event) => {
     setPart(event.target.value);
@@ -51,6 +67,18 @@ function App() {
       cameraTopic.subscribe((message) => {
         setCameraSubscribed("data:image/jpg;base64," + message.data)
       });
+
+      var markerTopic = new ROSLIB.Topic({
+        ros: rosConnected,
+        name: '/aruco/marker_array',
+        messageType: 'visualization_msgs/msg/MarkerArray',
+      });
+
+      markerTopic.subscribe((message) => {
+        setMarkers(message.markers[0] ? message.markers[0].id : "")
+        //console.log(message.markers[0].id)
+        console.log("MARKER")
+      });
     }
   }, [rosConnected])
 
@@ -65,11 +93,11 @@ function App() {
 
 
 
-  const moveUp = () => {
-    if (part === "Base") {
-      // var ros = new ROSLIB.Ros({
-      //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
-      // })
+  const moveUp = (e) => {
+    if (part === "Movement") {
+      var ros = new ROSLIB.Ros({
+        url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
+      })
 
       var cmdVelTopic = new ROSLIB.Topic({
         ros: ros,
@@ -81,9 +109,8 @@ function App() {
         linear: { x: 2.0, y: 0.0, z: 0.0 },
         angular: { x: 0.0, y: 0.0, z: 0.0 }
       });
-
       cmdVelTopic.publish(twist);
-
+      
       console.log("moved base")
     } else {
       console.log("not in the correct part")
@@ -91,7 +118,7 @@ function App() {
   }
 
   const moveLeft = () => {
-    if (part === "Base") {
+    if (part === "Movement") {
       var ros = new ROSLIB.Ros({
         url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       })
@@ -116,7 +143,7 @@ function App() {
   }
 
   const moveRight = () => {
-    if (part === "Base") {
+    if (part === "Movement") {
       var ros = new ROSLIB.Ros({
         url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       })
@@ -141,7 +168,7 @@ function App() {
   }
 
   const moveDown = () => {
-    if (part === "Base") {
+    if (part === "Movement") {
       var ros = new ROSLIB.Ros({
         url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       })
@@ -178,15 +205,63 @@ function App() {
     },
   });
 
+  const testActionServer = () => {
+    // var ros = new ROSLIB.Ros({
+    //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
+    // })
+
+    console.log("lift joint")
+    var jointLiftClient = new ROSLIB.ActionHandle({
+      ros : rosConnected,
+      name : '/stretch_controller/follow_joint_trajectory',
+      actionType : 'control_msgs/action/FollowJointTrajectory',
+    });
+  
+    var goal = new ROSLIB.ActionGoal({
+      trajectory: {
+        header: {
+          stamp: {
+            secs: 0,
+            nsecs: 0
+          }
+        },
+        joint_names: ["joint_lift"],
+        points: [
+          {
+            positions: [0.3],
+            time_from_start: {
+              secs: 0,
+              nsecs: 1
+            }
+          }
+        ]
+      }
+    });
+
+    console.log(goal);
+
+    // goal.on('feedback', function(feedback) {
+    //   console.log('Feedback: ' + feedback.sequence);
+    // });
+  
+    // goal.on('result', function(result) {
+    //   console.log('Final Result: ' + result.sequence);
+    // });
+  
+    jointLiftClient.createClient(goal);
+  }
+
   let image = new window.Image();
   image.src = cameraSubscribed;
-
+  
 
   return (
     <center>
       {/* <RosConnection url="ws://slinky.hcrlab.cs.washington.edu:9090" autoConnect> */}
         <h1>CSE 481C Stretch Web Interface</h1>
         <h3>Current Status: {currentStatus}</h3>
+        <h3> Marker ID: {markers ? markers : "Not Found"} </h3>
+        <Button onClick={testActionServer}>TestActionServer</Button>
 
         <AppBar position="static" sx={{ backgroundColor: '#00ff00', boxShadow: 8, alignItems: 'center', paddingBottom: '10px', paddingTop: '10px' }}>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example">
@@ -230,7 +305,7 @@ function App() {
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 32 }}>
                   <Stack spacing={2} alignItems="center">
                     <Typography variant="subtitle1">Base</Typography>
-                    <Button variant="contained" onClick={moveUp} style={{ width: '100px', height: '37px' }}>Forward</Button>
+                    <Button variant="contained" onMouseDown={moveUp} style={{ width: '100px', height: '37px' }}>Forward</Button>
                     <ButtonGroup variant="contained" >
                       <Button onClick={moveLeft} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Left</Button>
                       <Button onClick={moveRight} style={{ width: '100px', height: '37px' }}>Right</Button>
