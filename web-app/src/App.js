@@ -205,7 +205,7 @@ function App() {
     },
   });
 
-  const testActionServer = () => {
+  const testActionServer = (joint_name, pos) => {
     // var ros = new ROSLIB.Ros({
     //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
     // })
@@ -225,10 +225,10 @@ function App() {
             nsecs: 0
           }
         },
-        joint_names: ["joint_lift"],
+        joint_names: [joint_name],
         points: [
           {
-            positions: [0.3],
+            positions: [pos],
             time_from_start: {
               secs: 0,
               nsecs: 1
@@ -330,7 +330,7 @@ function App() {
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 32 }}>
                   <Stack spacing={2} alignItems="center">
                     <Typography variant="subtitle1">Arm</Typography>
-                    <Button variant="contained" onClick={moveUp} style={{ width: '100px', height: '37px' }}>Up</Button>
+                    <Button variant="contained" onClick={testActionServer("joint_lift", 0.3)} style={{ width: '100px', height: '37px' }}>Up</Button>
                     <ButtonGroup variant="contained" aria-label="outlined button group" >
                       <Button onClick={moveLeft} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Left</Button>
                       <Button onClick={moveRight} style={{ width: '100px', height: '37px' }}>Right</Button>
