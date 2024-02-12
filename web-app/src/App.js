@@ -11,19 +11,34 @@ import { useROS } from './ros-helpers';
 import Konva from 'konva';
 import { Stage, Layer, Image } from 'react-konva';
 
+const JOINTS = [
+  "wrist_extension",
+  "joint_lift",
+  "joint_arm_l3",
+  "joint_arm_l2",
+  "joint_arm_l1",
+  "joint_arm_l0",
+  "joint_head_pan",
+  "joint_head_tilt",
+  "joint_wrist_yaw",
+  "joint_wrist_pitch",
+  "joint_wrist_roll",
+  "joint_gripper_finger_left",
+  "joint_gripper_finger_right",
+]
 
-// export const JOINT_LIMITS: { [key in ValidJoints]?: [number, number] } = {
-//   "wrist_extension": [0.05, .518],
-//   "joint_wrist_roll": [-2.95, 2.95],
-//   "joint_wrist_pitch": [-1.57, 0.57],
-//   "joint_wrist_yaw": [-1.37, 4.41],
-//   "joint_lift": [0.175, 1.05],
-//   "translate_mobile_base": [-30.0, 30.0],
-//   "rotate_mobile_base": [-3.14, 3.14],
-//   "joint_gripper_finger_left": [-0.37, 0.17],
-//   "joint_head_tilt": [-1.6, 0.3],
-//   "joint_head_pan": [-3.95, 1.7]
-// }
+const JOINT_LIMITS = {
+  "wrist_extension": [0.05, .518],
+  "joint_wrist_roll": [-2.95, 2.95],
+  "joint_wrist_pitch": [-1.57, 0.57],
+  "joint_wrist_yaw": [-1.37, 4.41],
+  "joint_lift": [0.175, 1.05],
+  "translate_mobile_base": [-30.0, 30.0],
+  "rotate_mobile_base": [-3.14, 3.14],
+  "joint_gripper_finger_left": [-0.37, 0.17],
+  "joint_head_tilt": [-1.6, 0.3],
+  "joint_head_pan": [-3.95, 1.7]
+}
 
 function App() {
   let { ros } = useROS();
@@ -35,6 +50,7 @@ function App() {
   const [markers, setMarkers] = React.useState("");
   const [rosConnected, setRosConnected] = React.useState();
   const [isVisible, setIsVisible] = React.useState(false);
+  const [jointStates, setJointStates] = React.useState();
 
   const handleControlChange = (event) => {
     setControlMode(event.target.value);
@@ -79,6 +95,17 @@ function App() {
         //console.log(message.markers[0].id)
         console.log("MARKER")
       });
+
+      var jointStatesTopic = new ROSLIB.Topic({
+        ros: rosConnected,
+        name: '/stretch/joint_states',
+        messageType: 'sensor_msgs/msg/JointState'
+      });
+
+      jointStatesTopic.subscribe((message) => {
+        setJointStates(message.position);
+        //console.log(message.position[JOINTS.indexOf("wrist_extension")])
+      })
     }
   }, [rosConnected])
 
@@ -216,7 +243,11 @@ function App() {
       name : '/stretch_controller/follow_joint_trajectory',
       actionType : 'control_msgs/action/FollowJointTrajectory',
     });
-  
+
+    let newPos = jointStates[JOINTS.indexOf(joint_name)] + pos;
+    console.log("curr pose: " + jointStates[JOINTS.indexOf(joint_name)])
+    console.log("NEW POSE: " + newPos)
+
     var goal = new ROSLIB.ActionGoal({
       trajectory: {
         header: {
@@ -228,7 +259,7 @@ function App() {
         joint_names: [joint_name],
         points: [
           {
-            positions: [pos],
+            positions: [newPos],
             time_from_start: {
               secs: 0,
               nsecs: 1
@@ -315,12 +346,12 @@ function App() {
 
                   <Stack spacing={2} alignItems="center">
                     <Typography variant="subtitle1"> Head Camera</Typography>
-                    <Button variant="contained" onClick={null} style={{ width: '100px', height: '37px' }}>Tilt Up</Button>
+                    <Button variant="contained" onClick={()=>testActionServer("joint_head_tilt", 0.1)} style={{ width: '100px', height: '37px' }}>Tilt Up</Button>
                     <ButtonGroup variant="contained" aria-label="outlined button group" >
-                      <Button onClick={null} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Left</Button>
-                      <Button onClick={null} style={{ width: '100px', height: '37px' }}>Right</Button>
+                      <Button onClick={()=>testActionServer("joint_head_pan", 0.1)} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Left</Button>
+                      <Button onClick={()=>testActionServer("joint_head_pan", -0.1)} style={{ width: '100px', height: '37px' }}>Right</Button>
                     </ButtonGroup>
-                    <Button variant="contained" onClick={null} style={{ width: '115px', height: '37px' }}>Tilt Down</Button>
+                    <Button variant="contained" onClick={()=>testActionServer("joint_head_tilt", -0.1)} style={{ width: '115px', height: '37px' }}>Tilt Down</Button>
                   </Stack>
                 </Box>
               )}
@@ -330,22 +361,22 @@ function App() {
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 32 }}>
                   <Stack spacing={2} alignItems="center">
                     <Typography variant="subtitle1">Arm</Typography>
-                    <Button variant="contained" onClick={()=>testActionServer("joint_lift", 0.8)} style={{ width: '100px', height: '37px' }}>Up</Button>
+                    <Button variant="contained" onClick={()=>testActionServer("joint_lift", 0.075)} style={{ width: '100px', height: '37px' }}>Up</Button>
                     <ButtonGroup variant="contained" aria-label="outlined button group" >
                       <Button onClick={moveLeft} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Left</Button>
                       <Button onClick={moveRight} style={{ width: '100px', height: '37px' }}>Right</Button>
                     </ButtonGroup>
-                    <Button variant="contained" onClick={moveDown} style={{ width: '100px', height: '37px' }}>Down</Button>
+                    <Button variant="contained" onClick={()=>testActionServer("joint_lift", -0.075)} style={{ width: '100px', height: '37px' }}>Down</Button>
                   </Stack>
 
                   <Stack spacing={2} alignItems="center">
-                    <Typography variant="subtitle1">Grabber</Typography>
-                    <Button variant="contained" onClick={moveUp} style={{ width: '100px', height: '37px' }}>Out</Button>
+                    <Typography variant="subtitle1">Grabber</Typography> 
+                    <Button variant="contained" onClick={()=>testActionServer("wrist_extension", 0.075)} style={{ width: '100px', height: '37px' }}>Out</Button>
                     <ButtonGroup variant="contained" aria-label="outlined button group">
-                      <Button onClick={moveLeft} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Close</Button>
-                      <Button onClick={moveRight} style={{ width: '100px', height: '37px' }}>Open</Button>
+                      <Button onClick={()=>testActionServer("joint_gripper_finger_left", -0.075)} style={{ marginRight: ' 32px', width: '100px', height: '37px' }}>Close</Button>
+                      <Button onClick={()=>testActionServer("joint_gripper_finger_left", 0.075)} style={{ width: '100px', height: '37px' }}>Open</Button>
                     </ButtonGroup>
-                    <Button variant="contained" onClick={moveDown} style={{ width: '100px', height: '37px' }}>In</Button>
+                    <Button variant="contained" onClick={()=>testActionServer("wrist_extension", -0.075)} style={{ width: '100px', height: '37px' }}>In</Button>
                   </Stack>
                 </Box>
               )}
