@@ -51,6 +51,7 @@ function App() {
   const [rosConnected, setRosConnected] = React.useState();
   const [isVisible, setIsVisible] = React.useState(false);
   const [jointStates, setJointStates] = React.useState();
+  const [currLocName, setCurrLocName] = React.useState("");
 
   const handleControlChange = (event) => {
     setControlMode(event.target.value);
@@ -282,6 +283,10 @@ function App() {
     jointLiftClient.createClient(goal);
   }
 
+  const savePosition = () => {
+    console.log(currLocName);
+  }
+
   let image = new window.Image();
   image.src = cameraSubscribed;
   
@@ -293,6 +298,11 @@ function App() {
         <h3>Current Status: {currentStatus}</h3>
         <h3> Marker ID: {markers ? markers : "Not Found"} </h3>
         <Button onClick={testActionServer}>TestActionServer</Button>
+
+        <div>
+          <input type="text" value={currLocName} onChange={(e) => setCurrLocName(e.target.value)} placeholder='Enter a position name'/>
+          <Button variant="contained" onClick={savePosition} style={{ marginLeft: "10px"}}>Save Position</Button>
+        </div>
 
         <AppBar position="static" sx={{ backgroundColor: '#00ff00', boxShadow: 8, alignItems: 'center', paddingBottom: '10px', paddingTop: '10px' }}>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example">
@@ -319,9 +329,13 @@ function App() {
           <Paper style={{ padding: 20 }}>
             <Typography variant="h6">Manual Control</Typography>
             <div
-              style={{
-                position: 'absolute', left: '50%', top: '28%', transform: 'translate(-50%, -50%)', marginTop: 5, margin: 6
-              }}>
+              // style={{
+              //   position: 'absolute', left: '50%', top: '28%', transform: 'translate(-50%, -50%)', marginTop: 5, margin: 6
+              // }}
+              style = {{
+                marginLeft: "45%"
+              }}
+              >
               <FormControl variant="standard" fullWidth sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
                 <RadioGroup row name="controlMode" value={controlMode} onChange={handleControlChange} sx={{ marginTop: '35px' }}>
                   <FormControlLabel value="Movement" control={<Radio />} label="Movement" />
