@@ -21,7 +21,7 @@ def main():
 
     navigator = BasicNavigator()
     security_route = []
-    f = open('saved_poses.json')
+    f = open('savelocations.json')
     data = json.load(f)
     while True:
         locName = input("Enter Location Name For Robot To Travel To. Type 'quit' to finish:")
@@ -100,6 +100,10 @@ def main():
 
     rclpy.shutdown()
 
+
+def _amclPoseCallback(self, msg):
+    print("Receiced amcl pose")
+    se
 
 if __name__ == '__main__':
     main()
