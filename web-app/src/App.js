@@ -120,15 +120,14 @@ function App() {
   // console.log(ros)
 
 
-
   const moveUp = (e) => {
     if (part === "Movement") {
-      var ros = new ROSLIB.Ros({
-        url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
-      })
+      // var ros = new ROSLIB.Ros({
+      //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
+      // })
 
       var cmdVelTopic = new ROSLIB.Topic({
-        ros: ros,
+        ros: rosConnected,
         name: '/stretch/cmd_vel',
         messageType: 'geometry_msgs/Twist',
       });
@@ -147,12 +146,12 @@ function App() {
 
   const moveLeft = () => {
     if (part === "Movement") {
-      var ros = new ROSLIB.Ros({
-        url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
-      })
+      // var ros = new ROSLIB.Ros({
+      //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
+      // })
 
       var cmdVelTopic = new ROSLIB.Topic({
-        ros: ros,
+        ros: rosConnected,
         name: '/stretch/cmd_vel',
         messageType: 'geometry_msgs/Twist',
       });
@@ -172,12 +171,12 @@ function App() {
 
   const moveRight = () => {
     if (part === "Movement") {
-      var ros = new ROSLIB.Ros({
-        url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
-      })
+      // var ros = new ROSLIB.Ros({
+      //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
+      // })
 
       var cmdVelTopic = new ROSLIB.Topic({
-        ros: ros,
+        ros: rosConnected,
         name: '/stretch/cmd_vel',
         messageType: 'geometry_msgs/Twist',
       });
@@ -197,12 +196,12 @@ function App() {
 
   const moveDown = () => {
     if (part === "Movement") {
-      var ros = new ROSLIB.Ros({
-        url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
-      })
+      // var ros = new ROSLIB.Ros({
+      //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
+      // })
 
       var cmdVelTopic = new ROSLIB.Topic({
-        ros: ros,
+        ros: rosConnected,
         name: '/stretch/cmd_vel',
         messageType: 'geometry_msgs/Twist',
       });
@@ -237,7 +236,6 @@ function App() {
     // var ros = new ROSLIB.Ros({
     //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
     // })
-   if(rosConnected){
     console.log("lift joint")
     var jointLiftClient = new ROSLIB.ActionHandle({
       ros : rosConnected,
@@ -268,9 +266,9 @@ function App() {
           }
         ]
       }
+    
     });
-  }
-
+  
     console.log(goal);
 
     // goal.on('feedback', function(feedback) {
@@ -282,6 +280,7 @@ function App() {
     // });
   
     jointLiftClient.createClient(goal);
+  
   }
 
   const savePosition = () => {
