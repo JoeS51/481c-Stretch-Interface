@@ -6,7 +6,6 @@ import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import ROSLIB from "roslib";
-import { RosConnection, rosImageSrcString } from 'rosreact';
 import { useROS } from './ros-helpers';
 import Konva from 'konva';
 import { Stage, Layer, Image } from 'react-konva';
@@ -70,7 +69,7 @@ function App() {
     setRosConnected(new ROSLIB.Ros({
       url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
     }));
-    
+
   }, []);
 
   React.useEffect(() => {
@@ -121,7 +120,7 @@ function App() {
 
 
   const moveUp = (e) => {
-    if (part === "Movement") {
+    if (part === "Movement" && rosConnected) {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -145,7 +144,7 @@ function App() {
   }
 
   const moveLeft = () => {
-    if (part === "Movement") {
+    if (part === "Movement" && rosConnected) {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -170,7 +169,7 @@ function App() {
   }
 
   const moveRight = () => {
-    if (part === "Movement") {
+    if (part === "Movement" && rosConnected) {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -195,7 +194,7 @@ function App() {
   }
 
   const moveDown = () => {
-    if (part === "Movement") {
+    if (part === "Movement" && rosConnected) {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -236,6 +235,7 @@ function App() {
     // var ros = new ROSLIB.Ros({
     //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
     // })
+    if (rosConnected){
     console.log("lift joint")
     var jointLiftClient = new ROSLIB.ActionHandle({
       ros : rosConnected,
@@ -268,7 +268,7 @@ function App() {
       }
     
     });
-  
+    
     console.log(goal);
 
     // goal.on('feedback', function(feedback) {
@@ -280,6 +280,7 @@ function App() {
     // });
   
     jointLiftClient.createClient(goal);
+  }
   
   }
 
