@@ -73,7 +73,7 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    if (rosConnected) {
+    
       var cameraTopic = new ROSLIB.Topic({
         ros: rosConnected,
         name: '/camera/color/image_raw/compressed',
@@ -106,7 +106,7 @@ function App() {
         setJointStates(message.position);
         //console.log(message.position[JOINTS.indexOf("wrist_extension")])
       })
-    }
+    
   }, [rosConnected])
 
   // React.useEffect(() => {
@@ -120,7 +120,7 @@ function App() {
 
 
   const moveUp = (e) => {
-    if (part === "Movement" && rosConnected) {
+    if (part === "Movement") {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -144,7 +144,7 @@ function App() {
   }
 
   const moveLeft = () => {
-    if (part === "Movement" && rosConnected) {
+    if (part === "Movement") {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -169,7 +169,7 @@ function App() {
   }
 
   const moveRight = () => {
-    if (part === "Movement" && rosConnected) {
+    if (part === "Movement") {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -194,7 +194,7 @@ function App() {
   }
 
   const moveDown = () => {
-    if (part === "Movement" && rosConnected) {
+    if (part === "Movement") {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
@@ -235,7 +235,7 @@ function App() {
     // var ros = new ROSLIB.Ros({
     //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
     // })
-    if (rosConnected) {
+    
       console.log("lift joint")
       var jointLiftClient = new ROSLIB.ActionHandle({
         ros: rosConnected,
@@ -280,7 +280,7 @@ function App() {
       // });
 
       jointLiftClient.createClient(goal);
-    }
+    
 
   }
 
