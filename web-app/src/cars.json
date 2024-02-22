@@ -1,0 +1,19 @@
+{
+    "volvo": {
+        "price": "35000", 
+        "class": "SUV"
+    },
+    "saab": {
+        "price": "27000", 
+        "class": "Sedan"
+    },
+    "mercedes": {
+        "price": "50000", 
+        "class": "Luxury"
+    },  
+    "audi": {
+        "price": "45000", 
+        "class": "Sport"
+    }
+  }
+  

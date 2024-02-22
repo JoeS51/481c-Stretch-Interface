@@ -1,6 +1,6 @@
 import './App.css';
 import * as React from 'react';
-import { createTheme, ThemeProvider, Button, Box, ButtonGroup, Radio, RadioGroup, FormControlLabel, Paper, Typography, FormControl } from '@mui/material';
+import { createTheme, ThemeProvider, Button, Box, ButtonGroup, Radio, RadioGroup, FormControlLabel, Paper, Typography, FormControl, MenuItem, Select, InputLabel} from '@mui/material';
 import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
@@ -9,6 +9,8 @@ import ROSLIB from "roslib";
 import { useROS } from './ros-helpers';
 import Konva from 'konva';
 import { Stage, Layer, Image } from 'react-konva';
+import carData from './cars.json';
+
 
 const JOINTS = [
   "wrist_extension",
@@ -52,6 +54,7 @@ function App() {
   const [jointStates, setJointStates] = React.useState();
   const [currLocName, setCurrLocName] = React.useState("");
 
+
   const handleControlChange = (event) => {
     setControlMode(event.target.value);
     setPart(event.target.value)
@@ -63,6 +66,13 @@ function App() {
     setTabValue(newValue);
   };
   // console.log(ros)
+  const carOptions = React.useMemo(() => {
+    return Object.keys(carData).map(key => ({
+      key: key,
+      price: carData[key].price,
+      class: carData[key].class
+    }));
+  }, []);
 
   React.useEffect(() => {
     console.log("in use effect")
@@ -73,7 +83,10 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    
+    if (!rosConnected) {
+      console.log('ROS connection is not yet established.');
+      return;
+    }
       var cameraTopic = new ROSLIB.Topic({
         ros: rosConnected,
         name: '/camera/color/image_raw/compressed',
@@ -308,17 +321,15 @@ function App() {
       </AppBar>
 
       {tabValue === "Automated" && (
+        
         <ThemeProvider theme={buttonTheme}>
-          <div>
-            <label for="cars">Choose a car:</label>
-            {/* Change the values of the dropdown */}
-            <select name="cars" id="cars">
-              <option value="volvo">Volvo</option>
-              <option value="saab">Saab</option>
-              <option value="mercedes">Mercedes</option>
-              <option value="audi">Audi</option>
-            </select>
-          </div>
+         <select name="cars" id="cars" class="cars" >
+        {carOptions.map(option => (
+          <option key={option.key} value={option.key}>
+            {option.key}
+          </option>
+        ))}
+      </select>
           <ButtonGroup >
             <ButtonGroup orientation='vertical' >
               <Button variant="contained" color="customColor" style={{ marginTop: '28px', marginBottom: '78px', width: '250px', height: '75px' }}>Clean the Room</Button>
