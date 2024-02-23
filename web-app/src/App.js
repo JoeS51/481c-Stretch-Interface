@@ -73,7 +73,10 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    
+      if (!rosConnected){
+        return
+      }
+
       var cameraTopic = new ROSLIB.Topic({
         ros: rosConnected,
         name: '/camera/color/image_raw/compressed',
@@ -217,6 +220,7 @@ function App() {
       console.log("not in the correct part")
     }
   }
+
   const buttonTheme = createTheme({
     palette: {
       // Define a custom palette color
@@ -285,7 +289,25 @@ function App() {
   }
 
   const savePosition = () => {
-    // call the callback from ros
+    if (part === "Movement") {
+      // var ros = new ROSLIB.Ros({
+      //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
+      // })
+
+      var cmdVelTopic = new ROSLIB.Topic({
+        ros: rosConnected,
+        name: 'save_pos_sub',
+        messageType: 'std_msgs/String',
+      });
+
+      var twist = new ROSLIB.Message({data: currLocName});
+
+      cmdVelTopic.publish(twist);
+
+      console.log("published", currLocName)
+    } else {
+      console.log("not in the correct part")
+    }
   }
 
   let image = new window.Image();
