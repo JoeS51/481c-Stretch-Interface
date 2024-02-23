@@ -2,7 +2,7 @@ from copy import deepcopy
 import json
 
 from geometry_msgs.msg import PoseStamped
-from stretch_nav2.robot_navigator import BasicNavigator, TaskResult
+from BasicNavigator import BasicNavigator, TaskResult
 
 import rclpy
 from rclpy.node import Node
@@ -23,12 +23,9 @@ def main():
     security_route = []
     f = open('savelocations.json')
     data = json.load(f)
-    while True:
-        locName = input("Enter Location Name For Robot To Travel To. Type 'quit' to finish:")
-        if locName == 'quit':
-            break
-        for i in data[locName]:
-            security_route.append(i)
+    for i in data['locations']:
+        if i[name]:
+            security_route = [i['x'], i['y']]
     f.close()
         
 
@@ -103,7 +100,6 @@ def main():
 
 def _amclPoseCallback(self, msg):
     print("Receiced amcl pose")
-    se
 
 if __name__ == '__main__':
     main()

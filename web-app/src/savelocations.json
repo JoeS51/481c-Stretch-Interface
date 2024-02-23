@@ -1,0 +1,19 @@
+{
+    "locations": [
+        {
+            "name":"Back Corner Desk area",
+            "x": 6.7482722020220915,
+            "y": -0.9386118914442588  
+        },
+        {
+            "name":"Back center Desk area",
+            "x": 5.864246905205546,
+            "y": -1.7762298166541142
+        },
+        {
+            "name":"Back corner windows Desk area",
+            "x": 3.7947531175541833,
+            "y": -3.921569954625564
+        }
+    ]
+}
