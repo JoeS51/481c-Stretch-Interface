@@ -52,3 +52,12 @@
 img {
   transform: rotate(90deg)
 }
+
+#cars {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
