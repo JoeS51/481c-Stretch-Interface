@@ -9,7 +9,7 @@ import ROSLIB from "roslib";
 import { useROS } from './ros-helpers';
 import Konva from 'konva';
 import { Stage, Layer, Image } from 'react-konva';
-import carData from './cars.json';
+import locationData from './savelocations.json';
 
 
 const JOINTS = [
@@ -66,11 +66,11 @@ function App() {
     setTabValue(newValue);
   };
   // console.log(ros)
-  const carOptions = React.useMemo(() => {
-    return Object.keys(carData).map(key => ({
-      key: key,
-      price: carData[key].price,
-      class: carData[key].class
+  const locationOptions = React.useMemo(() => {
+    return locationData.locations.map((location) => ({
+      name: location.name,
+      x: location.x,
+      y: location.y,
     }));
   }, []);
 
@@ -342,13 +342,13 @@ function App() {
       {tabValue === "Automated" && (
         
         <ThemeProvider theme={buttonTheme}>
-         <select name="cars" id="cars" class="cars" >
-        {carOptions.map(option => (
-          <option key={option.key} value={option.key}>
-            {option.key}
-          </option>
-        ))}
-      </select>
+         <select name="locations" id="locations" class="locations" >
+          {locationOptions.map(option => (
+            <option key={option.name} value={option.name}>
+              {option.name}
+            </option>
+          ))}
+        </select>
           <ButtonGroup >
             <ButtonGroup orientation='vertical' >
               <Button variant="contained" color="customColor" style={{ marginTop: '28px', marginBottom: '78px', width: '250px', height: '75px' }}>Clean the Room</Button>
