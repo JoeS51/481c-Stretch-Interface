@@ -95,33 +95,42 @@ class GoToLocation(Node):
             final_pose.pose.orientation.z = 0.0
             final_pose.pose.orientation.w = 1.0
 
+            self.navigator.goToPose(final_pose)
 
+            i = 0
+            while not self.navigator.isTaskComplete():
 
-    def goToPose(self, pose, behavior_tree=''):
-        """Send a `NavToPose` action request."""
-        self.debug("Waiting for 'NavigateToPose' action server")
-        while not self.nav_to_pose_client.wait_for_server(timeout_sec=1.0):
-            self.info("'NavigateToPose' action server not available, waiting...")
+                i = i + 1
+                feedback = self.navigator.getFeedback()
+                if feedback and i % 5 == 0:
+                    print(
+                        'Estimated time of arrival: '
+                        + '{0:.0f}'.format(
+                            Duration.from_msg(feedback.estimated_time_remaining).nanoseconds
+                            / 1e9
+                        )
+                        + ' seconds.'
+                    )
 
-        goal_msg = NavigateToPose.Goal()
-        goal_msg.pose = pose
-        goal_msg.behavior_tree = behavior_tree
+                    # Some navigation timeout to demo cancellation
+                    if Duration.from_msg(feedback.navigation_time) > Duration(seconds=600.0):
+                        self.navigator.cancelTask()
 
-        self.info('Navigating to goal: ' + str(pose.pose.position.x) + ' ' +
-                  str(pose.pose.position.y) + '...')
-        send_goal_future = self.nav_to_pose_client.send_goal_async(goal_msg,
-                                                                   self._feedbackCallback)
-        rclpy.spin_until_future_complete(self, send_goal_future)
-        self.goal_handle = send_goal_future.result()
+                    # Some navigation request change to demo preemption
+                    if Duration.from_msg(feedback.navigation_time) > Duration(seconds=18.0):
+                        final_pose.pose.position.x = -3.0
+                        self.navigator.goToPose(final_pose)
 
-        if not self.goal_handle.accepted:
-            self.error('Goal to ' + str(pose.pose.position.x) + ' ' +
-                       str(pose.pose.position.y) + ' was rejected!')
-            return False
-
-        self.result_future = self.goal_handle.get_result_async()
-        return True
-    
+            # Do something depending on the return code
+            result = self.navigator.getResult()
+            if result == TaskResult.SUCCEEDED:
+                print('Goal succeeded!')
+            elif result == TaskResult.CANCELED:
+                print('Goal was canceled!')
+            elif result == TaskResult.FAILED:
+                print('Goal failed!')
+            else:
+                print('Goal has an invalid return status!')
         
 
 

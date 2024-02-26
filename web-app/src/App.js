@@ -10,6 +10,7 @@ import { useROS } from './ros-helpers';
 import Konva from 'konva';
 import { Stage, Layer, Image } from 'react-konva';
 import locationData from './savelocations.json';
+import poseData from './saved_poses.json';
 
 
 const JOINTS = [
@@ -71,6 +72,13 @@ function App() {
       name: location.name,
       x: location.x,
       y: location.y,
+    }));
+  }, []);
+  const poseOptions = React.useMemo(() => {
+    return poseData.poses.map((pose) => ({
+      name: pose.name,
+      x: pose.x,
+      y: pose.y,
     }));
   }, []);
 
@@ -365,6 +373,13 @@ function App() {
 
       {tabValue === "Manual" && (
         <Paper style={{ padding: 20 }}>
+          <select name="poses" id="locations" class="locations" >
+          {poseOptions.map(option => (
+            <option key={option.name} value={option.name} placeholder='Select saved pose' >
+              {option.name}
+            </option>
+          ))}
+        </select>
           <Typography variant="h6">Manual Control</Typography>
           <div>
             <input type="text" value={currLocName} onChange={(e) => setCurrLocName(e.target.value)} placeholder='Enter a position name' />
@@ -379,6 +394,7 @@ function App() {
             }}
           >
             <FormControl variant="standard" fullWidth sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
+              
               <RadioGroup row name="controlMode" value={controlMode} onChange={handleControlChange} sx={{ marginTop: '35px' }}>
                 <FormControlLabel value="Movement" control={<Radio />} label="Movement" />
                 <FormControlLabel value="Arm" control={<Radio />} label="Arm" />
