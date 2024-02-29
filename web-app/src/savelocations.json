@@ -1,19 +1,34 @@
 {
     "locations": [
         {
-            "name":"Back Corner Desk area",
+            "name": "Back Corner Desk area",
             "x": 6.7482722020220915,
-            "y": -0.9386118914442588  
+            "y": -0.9386118914442588
         },
         {
-            "name":"Back center Desk area",
+            "name": "Back center Desk area",
             "x": 5.864246905205546,
             "y": -1.7762298166541142
         },
         {
-            "name":"Back corner windows Desk area",
+            "name": "Back corner windows Desk area",
             "x": 3.7947531175541833,
             "y": -3.921569954625564
+        },
+        {
+            "name": "Home",
+            "x": 0.7416311098062413,
+            "y": 0.7343349764896416
+        },
+        {
+            "name": "Dead Man's Corner",
+            "x": -0.6367335077035058,
+            "y": -1.0325712772369267
+        },
+        {
+            "name": "Toy Box",
+            "x": 3.684806144581846,
+            "y": 2.9035623574373095
         }
     ]
 }

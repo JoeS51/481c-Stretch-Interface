@@ -9,7 +9,6 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, qos_profile_system_default
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 
-from copy import deepcopy
 import json
 
 from geometry_msgs.msg import PoseStamped
@@ -19,19 +18,10 @@ import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
 
-from enum import Enum
-import time
-
-from action_msgs.msg import GoalStatus
 from builtin_interfaces.msg import Duration
-from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import PoseWithCovarianceStamped
-from lifecycle_msgs.srv import GetState
-from nav2_msgs.action import BackUp, Spin
-from nav2_msgs.action import ComputePathThroughPoses, ComputePathToPose
-from nav2_msgs.action import FollowPath, FollowWaypoints, NavigateThroughPoses, NavigateToPose
-from nav2_msgs.srv import ClearEntireCostmap, GetCostmap, LoadMap, ManageLifecycleNodes
+from nav2_msgs.action import NavigateToPose
 
 import rclpy
 from rclpy.action import ActionClient
@@ -39,28 +29,14 @@ from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 
-class GoToLocation(Node):
+class GoToLocationSubscriber(Node):
     def __init__(self):
         super().__init__('go_to_location_subscriber')
         self.curr_pos = None
         self.filename = "./locations.json"
         self.navigator = BasicNavigator()
 
-        self.nav_to_pose_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
-
-        amcl_pose_qos = QoSProfile(
-          durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
-          reliability=QoSReliabilityPolicy.RELIABLE,
-          history=QoSHistoryPolicy.KEEP_LAST,
-          depth=1)
-        
-        self.localization_pose_sub = self.create_subscription(PoseWithCovarianceStamped,
-                                                              'amcl_pose',
-                                                              self._amclPoseCallback,
-                                                              qos_profile_system_default)
-        
-        self.save_pos_sub = self.create_subscription(String, 'save_pos_sub', self.send_position_callback, 10)
-        
+        self.send_pos_sub = self.create_subscription(String, 'send_pos_sub', self.send_position_callback, 10)
 
           # callback to store the location
         
@@ -87,64 +63,64 @@ class GoToLocation(Node):
                         y = j['y']
             f.close()
 
-            final_pose = PoseStamped()
-            final_pose.header.frame_id = 'map'
-            final_pose.header.stamp = self.navigator.get_clock().now().to_msg()
-            final_pose.pose.position.x = x
-            final_pose.pose.position.y = y
-            final_pose.pose.orientation.z = 0.0
-            final_pose.pose.orientation.w = 1.0
+            # final_pose = PoseStamped()
+            # final_pose.header.frame_id = 'map'
+            # final_pose.header.stamp = self.navigator.get_clock().now().to_msg()
+            # final_pose.pose.position.x = x
+            # final_pose.pose.position.y = y
+            # final_pose.pose.orientation.z = 0.0
+            # final_pose.pose.orientation.w = 1.0
 
-            self.navigator.goToPose(final_pose)
+            # self.navigator.goToPose(final_pose)
 
-            i = 0
-            while not self.navigator.isTaskComplete():
+            # # i = 0
+            # # while not self.navigator.isTaskComplete():
 
-                i = i + 1
-                feedback = self.navigator.getFeedback()
-                if feedback and i % 5 == 0:
-                    print(
-                        'Estimated time of arrival: '
-                        + '{0:.0f}'.format(
-                            Duration.from_msg(feedback.estimated_time_remaining).nanoseconds
-                            / 1e9
-                        )
-                        + ' seconds.'
-                    )
+            # #     i = i + 1
+            # #     feedback = self.navigator.getFeedback()
+            # #     if feedback and i % 5 == 0:
+            # #         print(
+            # #             'Estimated time of arrival: '
+            # #             + '{0:.0f}'.format(
+            # #                 Duration.from_msg(feedback.estimated_time_remaining).nanoseconds
+            # #                 / 1e9
+            # #             )
+            # #             + ' seconds.'
+            # #         )
 
-                    # Some navigation timeout to demo cancellation
-                    if Duration.from_msg(feedback.navigation_time) > Duration(seconds=600.0):
-                        self.navigator.cancelTask()
+            # #         # Some navigation timeout to demo cancellation
+            # #         if Duration.from_msg(feedback.navigation_time) > Duration(seconds=600.0):
+            # #             self.navigator.cancelTask()
 
-                    # Some navigation request change to demo preemption
-                    if Duration.from_msg(feedback.navigation_time) > Duration(seconds=18.0):
-                        final_pose.pose.position.x = -3.0
-                        self.navigator.goToPose(final_pose)
+            # #         # Some navigation request change to demo preemption
+            # #         if Duration.from_msg(feedback.navigation_time) > Duration(seconds=18.0):
+            # #             final_pose.pose.position.x = -3.0
+            # #             self.navigator.goToPose(final_pose)
 
-            # Do something depending on the return code
-            result = self.navigator.getResult()
-            if result == TaskResult.SUCCEEDED:
-                print('Goal succeeded!')
-            elif result == TaskResult.CANCELED:
-                print('Goal was canceled!')
-            elif result == TaskResult.FAILED:
-                print('Goal failed!')
-            else:
-                print('Goal has an invalid return status!')
+            # # Do something depending on the return code
+            # result = self.navigator.getResult()
+            # if result == TaskResult.SUCCEEDED:
+            #     print('Goal succeeded!')
+            # elif result == TaskResult.CANCELED:
+            #     print('Goal was canceled!')
+            # elif result == TaskResult.FAILED:
+            #     print('Goal failed!')
+            # else:
+            #     print('Goal has an invalid return status!')
         
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    save_location_poses_subs = SaveLocationsPosesSubscriber()
+    send_location_poses_subs = GoToLocationSubscriber()
 
-    rclpy.spin(save_location_poses_subs)
+    rclpy.spin(send_location_poses_subs)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    save_location_poses_subs.destroy_node()
+    send_location_poses_subs.destroy_node()
     rclpy.shutdown()
 
 

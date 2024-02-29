@@ -306,6 +306,20 @@ function App() {
 
   }
 
+  const goToPose = (e) => {
+    var poseTopic = new ROSLIB.Topic({
+      ros: rosConnected,
+      name: 'send_pos_sub',
+      messageType: 'std_msgs/msg/String',
+    });
+
+    var locName = new ROSLIB.Message({data: e.target.value});
+
+    poseTopic.publish(locName);
+
+    console.log(e.target.value)
+  }
+
   const savePosition = () => {
     if (part === "Movement") {
       // var ros = new ROSLIB.Ros({
@@ -350,7 +364,7 @@ function App() {
       {tabValue === "Automated" && (
         
         <ThemeProvider theme={buttonTheme}>
-         <select name="locations" id="locations" class="locations" >
+         <select name="locations" id="locations" class="locations" onChange={goToPose}>
           {locationOptions.map(option => (
             <option key={option.name} value={option.name}>
               {option.name}
