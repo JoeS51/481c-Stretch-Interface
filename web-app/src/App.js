@@ -6,7 +6,7 @@ import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import ROSLIB from "roslib";
-import { useROS } from './ros-helpers';
+import { useROS, createROSServiceRequest } from './ros-helpers';
 import Konva from 'konva';
 import { Stage, Layer, Image } from 'react-konva';
 import locationData from './savelocations.json';
@@ -145,7 +145,7 @@ function App() {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
-
+      switchToNav();
       var cmdVelTopic = new ROSLIB.Topic({
         ros: rosConnected,
         name: '/stretch/cmd_vel',
@@ -169,7 +169,7 @@ function App() {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
-
+      switchToNav();
       var cmdVelTopic = new ROSLIB.Topic({
         ros: rosConnected,
         name: '/stretch/cmd_vel',
@@ -194,7 +194,7 @@ function App() {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
-
+      switchToNav();
       var cmdVelTopic = new ROSLIB.Topic({
         ros: rosConnected,
         name: '/stretch/cmd_vel',
@@ -219,7 +219,7 @@ function App() {
       // var ros = new ROSLIB.Ros({
       //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
       // })
-
+      switchToNav();
       var cmdVelTopic = new ROSLIB.Topic({
         ros: rosConnected,
         name: '/stretch/cmd_vel',
@@ -257,7 +257,7 @@ function App() {
     // var ros = new ROSLIB.Ros({
     //   url: 'ws://slinky.hcrlab.cs.washington.edu:9090'
     // })
-    
+      switchToPos();
       console.log("lift joint")
       var jointLiftClient = new ROSLIB.ActionHandle({
         ros: rosConnected,
@@ -305,8 +305,50 @@ function App() {
     
 
   }
+  // const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+  // const gotToAllPose = async () => {
+  //   switchToNav();
+  //   locationOptions.forEach((location) => {
+  //     console.log(location.name)
+  //     var poseTopic = new ROSLIB.Topic({
+  //       ros: rosConnected,
+  //       name: 'send_pos_sub',
+  //       messageType: 'std_msgs/msg/String',
+  //     });
 
+  //     var locName = new ROSLIB.Message({data: location.name});
+
+  //     poseTopic.publish(locName);
+  //     await sleep(10000)
+  //   });
+  // };
+
+  const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+
+  const gotToAllPose = async () => {
+    
+    for (const location of locationOptions) {
+      switchToNav();
+      console.log(location.name);
+      var poseTopic = new ROSLIB.Topic({
+        ros: rosConnected,
+        name: 'send_pos_sub',
+        messageType: 'std_msgs/msg/String',
+      });
+
+      var locName = new ROSLIB.Message({data: location.name});
+
+      poseTopic.publish(locName);
+      await sleep(90000); 
+      
+      pickupToy();
+      await sleep(10000); 
+    }
+
+  };
+  
   const goToPose = (e) => {
+    switchToNav();
     var poseTopic = new ROSLIB.Topic({
       ros: rosConnected,
       name: 'send_pos_sub',
@@ -318,6 +360,18 @@ function App() {
     poseTopic.publish(locName);
 
     console.log(e.target.value)
+  }
+
+  const pickupToy = () => {
+    console.log("in pickup toy JS")
+    switchToPos()
+    var pickupToyTopic = new ROSLIB.Topic({
+      ros: rosConnected,
+      name: '/pickup_toy',
+      messageType: String,
+    });
+
+    pickupToyTopic.publish();
   }
 
   const savePosition = () => {
@@ -340,6 +394,34 @@ function App() {
     } else {
       console.log("not in the correct part")
     }
+  }
+
+  const switchToNav = () => {
+    console.log("print in nav")
+    let navService = new ROSLIB.Service({
+
+      ros: rosConnected,
+  
+      name: "/switch_to_navigation_mode",
+  
+      serviceType: 'std_srvs/srv/Trigger'
+  
+    })
+    navService.callService(createROSServiceRequest());
+  }
+
+  const switchToPos = () => {
+    let posService = new ROSLIB.Service({
+
+      ros: rosConnected,
+  
+      name: "/switch_to_position_mode",
+  
+      serviceType: 'std_srvs/srv/Trigger'
+  
+    })
+
+    posService.callService(ROSLIB.ServiceRequest());
   }
 
   let image = new window.Image();
@@ -373,7 +455,7 @@ function App() {
         </select>
           <ButtonGroup >
             <ButtonGroup orientation='vertical' >
-              <Button variant="contained" color="customColor" style={{ marginTop: '28px', marginBottom: '78px', width: '250px', height: '75px' }}>Clean the Room</Button>
+              <Button variant="contained" onClick={gotToAllPose} color="customColor" style={{ marginTop: '28px', marginBottom: '78px', width: '250px', height: '75px' }} >Clean the Room</Button>
 
               <Button variant="contained" color="secondary" style={{ width: '150px', height: '50px' }} >Return Home</Button>
             </ButtonGroup>
@@ -467,7 +549,7 @@ function App() {
               </Box>
             )}
           </Box>
-          <img src={cameraSubscribed} x={0} y={0} width={400} height={400} />
+          <img src={cameraSubscribed} x={0} y={0} width={500} height={500} />
         </Paper>
       )}
 
